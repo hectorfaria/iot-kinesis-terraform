@@ -18,7 +18,7 @@ EOF
 }
 
 resource "aws_iam_role" "firehose" {
-  name = "DemoFirehoseAssumeRole"
+  name = "firehose_role"
 
   assume_role_policy = <<EOF
 {
@@ -55,8 +55,8 @@ resource "aws_iam_policy" "firehose_s3" {
             "s3:PutObject"
         ],
         "Resource": [
-            "${aws_s3_bucket.demo_bucket.arn}",
-            "${aws_s3_bucket.demo_bucket.arn}/*"
+            "${aws_s3_bucket.data_bucket.arn}",
+            "${aws_s3_bucket.data_bucket.arn}/*"
         ]
     }
   ]
@@ -82,7 +82,7 @@ resource "aws_iam_policy" "put_record" {
                 "firehose:PutRecordBatch"
             ],
             "Resource": [
-                "${aws_kinesis_firehose_delivery_stream.demo_delivery_stream.arn}"
+                "${aws_kinesis_firehose_delivery_stream.iot_to_kinesis_delivery_stream.arn}"
             ]
         }
     ]
@@ -110,7 +110,7 @@ resource "aws_iam_policy" "firehose_cloudwatch" {
             "logs:PutLogEvents"
         ],
         "Resource": [
-            "${aws_cloudwatch_log_group.demo_firebose_log_group.arn}"
+            "${aws_cloudwatch_log_group.iot_firehose_log_group.arn}"
         ]
     }
   ]
@@ -121,32 +121,4 @@ EOF
 resource "aws_iam_role_policy_attachment" "firehose_cloudwatch" {
   role       = aws_iam_role.firehose.name
   policy_arn = aws_iam_policy.firehose_cloudwatch.arn
-}
-
-resource "aws_iam_policy" "kinesis_firehose" {
-  name_prefix = "iot-kinesis"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-        "Sid": "",
-        "Effect": "Allow",
-        "Action": [
-            "kinesis:DescribeStream",
-            "kinesis:GetShardIterator",
-            "kinesis:GetRecords",
-            "kinesis:ListShards"
-        ],
-        "Resource": "${aws_kinesis_stream.demo_stream.arn}"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy_attachment" "kinesis_firehose" {
-  role       = aws_iam_role.firehose.name
-  policy_arn = aws_iam_policy.kinesis_firehose.arn
 }

@@ -1,4 +1,4 @@
-resource "aws_kinesis_firehose_delivery_stream" "kinesis_delivery_stream" {
+resource "aws_kinesis_firehose_delivery_stream" "iot_to_kinesis_delivery_stream" {
   name        = "iot-delivery"
   destination = "extended_s3"
 

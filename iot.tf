@@ -33,7 +33,7 @@ resource "aws_iot_policy" "pubsub" {
 }
 
 resource "aws_iot_thing" "raspberry" {
-  name = "raspberry"
+  name = var.iot_name
 }
 
 resource "aws_iot_policy_attachment" "att" {
@@ -50,13 +50,13 @@ resource "aws_iot_thing_principal_attachment" "att" {
 data "aws_iot_endpoint" "iot_endpoint" {}
 
 resource "aws_iot_topic_rule" "rule" {
-  name        = "IoT-kinesis"
-  sql         = "SELECT * FROM 'iot/topic'"
+  name        = "iot_kinesis_topic_rule"
+  sql         = "SELECT * FROM '${var.topic_name}'"
   sql_version = "2016-03-23"
   enabled     = true
 
   firehose {
     role_arn             = aws_iam_role.iot_role.arn
-    delivery_stream_name = aws_kinesis_firehose_delivery_stream.kinesis_delivery_stream.name
+    delivery_stream_name = aws_kinesis_firehose_delivery_stream.iot_to_kinesis_delivery_stream.name
   }
 }
